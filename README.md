@@ -12,7 +12,8 @@ base address for disp: 0x10000000 (global data)
 
 
 Controll the lights with the num pad to turn off all the lights!
- 	------------
+ 	
+	------------
 	
 	| 7 | 8 | 9 |
 	
