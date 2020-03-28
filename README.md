@@ -20,3 +20,5 @@ Controll the lights with the num pad to turn off all the lights!
   	| 4 | 5 | 6 |
  	| 1 | 2 | 3 |
  	 ------------
+
+Run in MARS 4.5 from mainLight.asm with Bitmap Display Connected and configured properly
