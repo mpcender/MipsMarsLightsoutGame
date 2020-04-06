@@ -17,7 +17,7 @@
 
 .data
   BaseAddress: .word 0x10000000
-  playAgainMsg: .asciiz "Would you like to play again?"
+  playAgainMsgConsole: .asciiz "\nWould you like to play again?"
   # LightOn variable store light On/Off State as 1=on, 0=off
   lightOn1: .word 1
   lightOn2: .word 1 
@@ -50,11 +50,10 @@
 
       introLoop:
          # sleep
-         li $v0, 32 #sleep
-         la $a0, 100 #sleep duration (ms)
-         syscall #do the 
-         li $v0, 0 # reset
-         li $a0, 0 # reset
+         li $v0, 32 	#sleep
+         la $a0, 100 	#sleep duration (ms)
+         syscall 	#do the 
+         li $v0, 0 	# reset
          addi $t9, $t9, 1	# add to t9 which loops through all light states to draw stage
          beq $t9, 20, gameLoop	# after drawing board go to game loop
          jal select
@@ -201,25 +200,44 @@ checkComp:
 playAgain:
    # display console message to user
    li $v0, 4
-   la $a0, playAgainMsg
+   la $a0, playAgainMsgConsole
    syscall
    
+   # CLEAR SCREEN
+   lw $a0, BaseAddress		# Load Base address
+   add $s0, $a0, 0		# $s0 modifiable base address
+   jal clearScreen
    
+   # PRINT BITMAP MESSAGE
+   lw $a0, BaseAddress		# Load Base address
+   add $a0, $a0, 1028		# $a0 keeps base address pure
+   add $s0, $a0, 0		# $s0 modifiable base address
+   jal playAgainMsg
+   
+   checkUserContinue:
     # Accept user char input for yes/no continue
-      #li $v0, 12
-      #syscall
-      #add $s4, $v0, 0
-      #bne $s4, 0, restartGame
-   
+      li $v0, 12
+      syscall
+      add $s5, $v0, 0
+      
+      # CLEAR SCREEN
+      lw $a0, BaseAddress		# Load Base address
+      add $s0, $a0, 0		# $s0 modifiable base address
+      jal clearScreen
+      
+      beq $s5, 'y', restartGame
+
    # Infinite end loop cycles lights when complete      
    li $t7, 1
+   li $t9, 0
    endLoop:
-   # sleep
+    # sleep
     li $v0, 32 #sleep
     la $a0, 100 #sleep duration (ms)
-    syscall #do the 
+    syscall #do the sleep
       beq $t9, 9, darkEnd
       beq $t9, 19, lightEnd
+      
       contLight:
       add $t9, $t9, 1
       beq $s4, 0, select
@@ -249,7 +267,7 @@ playAgain:
    li $t8, 0
    li $t9, 0
    li $v0, 0
-   beq $s4, 'y', main
+   beq $s5, 'y', main
    b exit    
 
 #---------------------------------------------------------------------------------- 
@@ -258,5 +276,8 @@ playAgain:
 .include "drawDarkBulb.asm"  
 .include "selectAction.asm"
 .include "lightToggle.asm"
+.include "playAgainMsg.asm"
+.include "screenReset.asm"
+
 
      
